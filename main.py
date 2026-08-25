@@ -7,6 +7,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
+embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
 
 data = YoutubeLoader.from_youtube_url(
     "https://www.youtube.com/watch?v=J7j5tCB_y4w",
