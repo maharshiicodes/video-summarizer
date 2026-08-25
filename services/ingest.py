@@ -3,19 +3,27 @@ from langchain_community.document_loaders import YoutubeLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
+import re
 
-from main import embedding_model
+def extract_video_id(url: str) -> str:
+    match = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
+    if not match:
+        raise ValueError("invalid youtube url")
+    return match.group(1)
+
 
 
 load_dotenv()
+ embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-async def ingest_video(url : str):
+def ingest_video(url : str):
+    video_id = extract_video_id(url)
     loader = YoutubeLoader(
         url,
-        add_video_info=false
+        add_video_info=False
     )
 
-    data = docs.load()
+    data = loader.load()
 
     splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1000,
@@ -24,10 +32,10 @@ async def ingest_video(url : str):
 
     chunks = splitter.split_documents(data)
 
-    embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-
     vector_store = Chroma.from_documents(
         documents = chunks,
         embedding = embedding_model,
-        persist_directory = 'chroma_db'
+        persist_directory = f"chroma_db/{video_id}"
     )
+
+    return vector_store

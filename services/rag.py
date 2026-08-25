@@ -1,8 +1,14 @@
 from dotenv import load_dotenv
 from ingest.ingest_video import vector_store
+from langchain_community.vectorstores import Chroma
 from langchain_mistralai import ChatMistralAI
+from video_summarizer.services.ingestion import embedding_model
 
 async def query_video(video_id : int,question : str) -> str:
+    vector_store = Chroma(
+            persist_directory=f"chroma_db/{video_id}",
+            embedding_function=embedding_model
+        )
     retriever = vector_store.as_retriever(
         search_type = "mmr",
         search_kwargs = {
@@ -50,4 +56,4 @@ async def query_video(video_id : int,question : str) -> str:
         "question" : query
     })
     response = llm.invoke(final_prompt)
-    return response
+    return response.content
