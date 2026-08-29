@@ -2,12 +2,14 @@ from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_mistralai import ChatMistralAI
 from langchain_core.prompts import ChatPromptTemplate
-from video_summarizer.services.ingestion import embedding_model
+from video_summarizer.services.ingestion import embedding_model,PINECONE_INDEX_NAME
+from langchain_pinecone import PineconeVectorStore
 
 def query_video(video_id : int,question : str) -> str:
-    vector_store = Chroma(
-            persist_directory=f"chroma_db/{video_id}",
-            embedding_function=embedding_model
+    vector_store = PineconeVectorStore(
+            index_name = PINECONE_INDEX_NAME,
+            embedding=embedding_model,
+            namespace = video_id
         )
     retriever = vector_store.as_retriever(
         search_type = "mmr",

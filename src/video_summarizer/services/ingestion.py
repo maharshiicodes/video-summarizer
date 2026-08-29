@@ -1,9 +1,12 @@
 from dotenv import load_dotenv
+import os
 from langchain_community.document_loaders import YoutubeLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_pinecone import PineConeVectorStore
 import re
+
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "youtube-rag")
 
 def extract_video_id(url: str) -> str:
     url = "https://www.youtube.com/watch?v=" + url
@@ -32,10 +35,11 @@ def ingest_video(url : str):
 
     chunks = splitter.split_documents(data)
 
-    vector_store = Chroma.from_documents(
+    vector_store = PineConeVectorStore(
         documents = chunks,
         embedding = embedding_model,
-        persist_directory = f"chroma_db/{video_id}"
+        index_name = PINECONE_INDEX_NAME,
+        namespace = video_id
     )
 
-    return vector_store
+    return video_id
