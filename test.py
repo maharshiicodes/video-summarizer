@@ -1,8 +1,5 @@
-from langchain_community.document_loaders import YoutubeLoader
-data = YoutubeLoader.from_youtube_url(
-    "https://www.youtube.com/watch?v=J7j5tCB_y4w",
-    add_video_info = False
-)
+from video_summarizer.services.ingestion import ingest_video
+from video_summarizer.services.rag import query_video
 
-docs = data.load()
-print(docs[0].page_content)
+ingest_video("kmy_YNhl0mw")
+print(query_video("kmy_YNhl0mw", "what is  react native?"))

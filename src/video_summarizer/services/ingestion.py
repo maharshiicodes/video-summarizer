@@ -6,15 +6,15 @@ from langchain_community.vectorstores import Chroma
 import re
 
 def extract_video_id(url: str) -> str:
+    url = "https://www.youtube.com/watch?v=" + url
     match = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
     if not match:
         raise ValueError("invalid youtube url")
     return match.group(1)
 
 
-
 load_dotenv()
- embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 def ingest_video(url : str):
     video_id = extract_video_id(url)

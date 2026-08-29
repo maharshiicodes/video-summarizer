@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
-from ingest.ingest_video import vector_store
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_mistralai import ChatMistralAI
+from langchain_core.prompts import ChatPromptTemplate
 from video_summarizer.services.ingestion import embedding_model
 
-async def query_video(video_id : int,question : str) -> str:
+def query_video(video_id : int,question : str) -> str:
     vector_store = Chroma(
             persist_directory=f"chroma_db/{video_id}",
             embedding_function=embedding_model
@@ -53,7 +53,7 @@ async def query_video(video_id : int,question : str) -> str:
 
     final_prompt = prompt.invoke ({
         "context" : context,
-        "question" : query
+        "question" : question
     })
     response = llm.invoke(final_prompt)
     return response.content
