@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
 from langchain_mistralai import ChatMistralAI
 from langchain_core.prompts import ChatPromptTemplate
 from video_summarizer.services.ingestion import embedding_model,PINECONE_INDEX_NAME

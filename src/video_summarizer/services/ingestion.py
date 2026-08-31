@@ -3,7 +3,7 @@ import os
 from langchain_community.document_loaders import YoutubeLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_pinecone import PineConeVectorStore
+from langchain_pinecone import PineconeVectorStore
 import re
 
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "youtube-rag")
@@ -35,7 +35,7 @@ def ingest_video(url : str):
 
     chunks = splitter.split_documents(data)
 
-    vector_store = PineConeVectorStore(
+    vector_store = PineconeVectorStore.from_documents(
         documents = chunks,
         embedding = embedding_model,
         index_name = PINECONE_INDEX_NAME,

@@ -3,5 +3,6 @@ from pydantic import BaseModel
 class IngestionRequest(BaseModel):
     url : str 
 
-class IngestionResponse(BaseModel):
-    
+class ChatRequest(BaseModel):
+    video_id : str
+    question : str
