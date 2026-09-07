@@ -15,7 +15,7 @@ def ingest(request : IngestionRequest,db : Session = Depends(get_db) , current_u
     try:
         video_id = ingest_video(request.url)
     except Exception as e:
-        raise HTTPException(status_code = 400 , details = str(e))
+        raise HTTPException(status_code = 400 , detail = str(e))
 
     existing_video = db.query(Video).filter(Video.id == video_id).first()
     if not existing:

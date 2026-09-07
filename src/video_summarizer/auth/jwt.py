@@ -8,13 +8,13 @@ SECRET = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
 expiry = 60 * 72
 
-def create_acces_token(user_id : str) -> str:
+def create_access_token(user_id : str) -> str:
     payload = {
         "sub" : user_id,
         "exp" : datetime.now(timezone.utc) + timedelta(minutes = expiry)
     }
 
-    token = jwt.encode(payload,SECRET,algorithm = ALGORITHM
+    token = jwt.encode(payload,SECRET,algorithm = ALGORITHM)
     return token
 
 def decode_access_token(token : str) -> str | None:
