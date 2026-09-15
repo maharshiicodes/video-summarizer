@@ -23,11 +23,11 @@ def ingest_video(url : str):
     video_id = extract_video_id(url)
     loader = YoutubeLoader(
         url,
-        add_video_info=False
+        add_video_info=True
     )
 
     data = loader.load()
-
+    title = data[0].metadata.get("title", "Untitled") if data else "Untitled"
     splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1000,
         chunk_overlap = 200
@@ -42,4 +42,4 @@ def ingest_video(url : str):
         namespace = video_id
     )
 
-    return video_id
+    return video_id,title

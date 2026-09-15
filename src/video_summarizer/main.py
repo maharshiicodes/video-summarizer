@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from video_summarizer.router import ingest,chat ,auth
+from video_summarizer.router import ingest,chat,auth
 
 
 app = FastAPI()

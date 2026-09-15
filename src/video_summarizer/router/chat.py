@@ -49,4 +49,7 @@ def get_history(video_id : str , db : Session = Depends(get_db) , current_user :
 
 @router.get("/videos")
 def get_videos(db:Session = Depends(get_db) , current_user : User = Depends(get_current_user)):
-    
+    results = (db.query(Video).join(UserVideo,UserVideo.video_id == Video.id).filter(UserVideo.user_id == current_user.id).all())
+    return [
+        {"video_id" :  v.id , "video_title" : v.title , "video_status" : v.status} for v in results
+    ]

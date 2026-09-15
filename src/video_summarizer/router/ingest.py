@@ -13,7 +13,7 @@ router = APIRouter()
 @router.post('/ingest')
 def ingest(request : IngestionRequest,db : Session = Depends(get_db) , current_user : User = Depends(get_current_user)):
     try:
-        video_id = ingest_video(request.url)
+        video_id , title  = ingest_video(request.url)
     except Exception as e:
         raise HTTPException(status_code = 400 , detail = str(e))
 
@@ -31,5 +31,5 @@ def ingest(request : IngestionRequest,db : Session = Depends(get_db) , current_u
     if not existing_link:
         db.add(UserVideo(id = str(uuid.uuid4()) , user_id = current_user.id , video_id = video_id))
         db.commit()
-    return {"video_id" : video_id , "status" : "ready"}
+    return {"video_id" : video_id , "title" : title , "status" : "ready"}
 
