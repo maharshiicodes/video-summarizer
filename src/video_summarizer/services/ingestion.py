@@ -20,8 +20,7 @@ load_dotenv()
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 def ingest_video(url : str):
-    video_id = extract_video_id(url)
-    loader = YoutubeLoader(
+    loader = YoutubeLoader.from_youtube_url(
         url,
         add_video_info=True
     )
@@ -42,4 +41,4 @@ def ingest_video(url : str):
         namespace = video_id
     )
 
-    return video_id,title
+    return title
