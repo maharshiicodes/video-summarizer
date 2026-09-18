@@ -13,20 +13,22 @@ def extract_video_id(url: str) -> str:
     match = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
     if not match:
         raise ValueError("invalid youtube url")
+    print (match.group(1))
     return match.group(1)
 
 
 load_dotenv()
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-def ingest_video(url : str):
+def ingest_video(url : str , video_id : str):
     loader = YoutubeLoader.from_youtube_url(
         url,
-        add_video_info=True
+        add_video_info=False,
+        language = ["en","hi"]
     )
 
     data = loader.load()
-    title = data[0].metadata.get("title", "Untitled") if data else "Untitled"
+    # title = data[0].metadata.get("title", "Untitled") if data else "Untitled"
     splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1000,
         chunk_overlap = 200
@@ -40,5 +42,3 @@ def ingest_video(url : str):
         index_name = PINECONE_INDEX_NAME,
         namespace = video_id
     )
-
-    return title

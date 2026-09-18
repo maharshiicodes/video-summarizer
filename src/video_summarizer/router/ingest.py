@@ -10,10 +10,10 @@ import uuid
 
 router = APIRouter()
 
-def run_ingestion(url:str , video_id : str , user_id : str):
+def run_ingestion(url:str ,video_id : str , user_id : str):
     db = SessionLocal()
     try:
-        _ , title = ingest_video(url)
+        ingest_video(url,video_id)
 
         video = db.query(Video).filter(Video.id == video_id).first()
         video.title = title
@@ -25,13 +25,14 @@ def run_ingestion(url:str , video_id : str , user_id : str):
         if video:
             video.status = VideoStatus.failed
             db.commit()
-        print(f"ingestion failed for video_id"{video_id})
+        print(e , "ha me madarchod")
+        print(f"ingestion failed for video_id{video_id}")
     finally:
         db.close()
     
 
 @router.post('/ingest')
-def ingest(request : IngestionRequest,db : Session = Depends(get_db) , background_tasks : BackgroundTasks , current_user : User = Depends(get_current_user)):
+def ingest(request : IngestionRequest,  background_tasks : BackgroundTasks ,db : Session = Depends(get_db) , current_user : User = Depends(get_current_user)):
     try:
         video_id   = extract_video_id(request.url)
     except Exception as e:
@@ -46,7 +47,7 @@ def ingest(request : IngestionRequest,db : Session = Depends(get_db) , backgroun
     elif existing_video.status == VideoStatus.failed:
         existing_video.status = VideoStatus.processing
         db.commit()
-        background_tasks.add_task(run_ingestion.request.url , video_id , current_user.id)
+        background_tasks.add_task(run_ingestion,request.url , video_id , current_user.id)
 
     existing_link = db.query(UserVideo).filter(
         UserVideo.user_id == current_user.id,
@@ -56,11 +57,11 @@ def ingest(request : IngestionRequest,db : Session = Depends(get_db) , backgroun
     if not existing_link:
         db.add(UserVideo(id = str(uuid.uuid4()) , user_id = current_user.id , video_id = video_id))
         db.commit()
-    return {"video_id" : video_id , "title" : title , "status" : "ready"}
+    return {"video_id": video_id, "status": existing_video.status if existing_video else "processing" ,"title" :request. title}
 
-@router.get(f"/status/{video_id}"):
-def status(video_id : str , db:Session = depends(get_db)):
-    video = db.query(Video).filter(Video.id == video_id)
+@router.get("/status/{video_id}")
+def status(video_id : str , db:Session = Depends(get_db)):
+    video = db.query(Video).filter(Video.id == video_id).first()
     if not video:
         raise HTTPException(status_code = 404 , detail = "video not found")
     return {"video_id" : video.id , "status" : video.status}
