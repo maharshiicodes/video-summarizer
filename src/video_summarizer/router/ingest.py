@@ -16,7 +16,6 @@ def run_ingestion(url:str ,video_id : str , user_id : str):
         ingest_video(url,video_id)
 
         video = db.query(Video).filter(Video.id == video_id).first()
-        video.title = title
         video.status = VideoStatus.ready
         db.commit()
 
@@ -40,7 +39,7 @@ def ingest(request : IngestionRequest,  background_tasks : BackgroundTasks ,db :
 
     existing_video = db.query(Video).filter(Video.id == video_id).first()
     if not existing_video:
-        video = Video(id = video_id , status = VideoStatus.processing)
+        video = Video(id = video_id , status = VideoStatus.processing , title = request.title)
         db.add(video)
         db.commit()
         background_tasks.add_task(run_ingestion,request.url,video_id,current_user.id)

@@ -22,7 +22,7 @@ def chat(request : ChatRequest,db : Session = Depends(get_db) , current_user : U
         user_id = current_user.id,
         video_id = request.video_id,
         role = "user",
-        content = user.question
+        content = request.question
     ))
     db.add(ChatMessage(
         id = str(uuid.uuid4()),

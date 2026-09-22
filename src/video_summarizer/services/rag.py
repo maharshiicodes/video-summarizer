@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from langchain_mistralai import ChatMistralAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from video_summarizer.services.ingestion import embedding_model,PINECONE_INDEX_NAME
 from langchain_pinecone import PineconeVectorStore
@@ -18,7 +19,7 @@ def query_video(video_id : int,question : str) -> str:
             "lambda_mult" : 0.5
         }
     )
-    llm = ChatMistralAI(model = "mistral-small-2506")
+    llm = ChatGroq(model = "openai/gpt-oss-120b")
     
     prompt = ChatPromptTemplate.from_messages(
         [
