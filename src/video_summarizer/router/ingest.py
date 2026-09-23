@@ -36,6 +36,9 @@ def ingest(request : IngestionRequest, db : Session = Depends(get_db) , current_
         UserVideo.video_id == video_id
     ).first()
 
+    if existing_link:
+        return {"msg" : "You already have this video"}
+
     if not existing_link:
         db.add(UserVideo(id = str(uuid.uuid4()) , user_id = current_user.id , video_id = video_id))
         db.commit()
