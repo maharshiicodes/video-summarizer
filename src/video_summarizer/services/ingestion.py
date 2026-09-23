@@ -13,7 +13,6 @@ def extract_video_id(url: str) -> str:
     match = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
     if not match:
         raise ValueError("invalid youtube url")
-    print (match.group(1))
     return match.group(1)
 
 
