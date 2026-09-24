@@ -16,7 +16,7 @@ def chat(request : ChatRequest,db : Session = Depends(get_db) , current_user : U
     access = db.query(UserVideo).filter(UserVideo.user_id == current_user.id , UserVideo.video_id == request.video_id).first()
     if not access:
         raise HTTPException(status_code = 404 , detail = "video not found - ingest if first")
-    answer = query_video(request.video_id,request.question)
+    answer = query_video(request.video_id,request.question,db)
     db.add(ChatMessage(
         id = str(uuid.uuid4()),
         user_id = current_user.id,
