@@ -32,10 +32,12 @@ def ingest_video(url : str , video_id : str):
     splitter = SemanticChunker(
         embeddings = embedding_model,
         breakpoint_threshold_type= "percentile",
-        breakpoint_threshold_amount=95
+        breakpoint_threshold_amount=70
     )
 
     chunks = splitter.split_documents(data)
+
+        
 
     vector_store = PineconeVectorStore.from_documents(
         documents = chunks,
@@ -43,3 +45,6 @@ def ingest_video(url : str , video_id : str):
         index_name = PINECONE_INDEX_NAME,
         namespace = video_id
     )
+
+    return chunks
+
