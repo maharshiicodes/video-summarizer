@@ -7,6 +7,11 @@ from langchain_pinecone import PineconeVectorStore
 from sqlalchemy.orm import Session
 from video_summarizer.db.models import Chunk
 from rank_bm25 import BM25Okapi
+import redis 
+import pickle
+
+def get_bm25_index(video_id : str,db : Session):
+    cached = redis
 
 def query_video(video_id : str,question : str , db : Session) -> str:
     vector_store = PineconeVectorStore(
@@ -65,9 +70,7 @@ def query_video(video_id : str,question : str , db : Session) -> str:
     vector_texts = [doc.page_content for doc in docs]
     bm25_texts = [chunk.content for chunk in bm25_top_chunks]
     combined_texts = list(dict.fromkeys(vector_texts + bm25_texts))
-    context = "\n\n".join(
-       combined_texts
-    )
+    context = "\n\n".join(combined_texts)
 
     final_prompt = prompt.invoke ({
         "context" : context,
