@@ -7,21 +7,32 @@ from langchain_pinecone import PineconeVectorStore
 from sqlalchemy.orm import Session
 from video_summarizer.db.models import Chunk
 from rank_bm25 import BM25Okapi
-import redis 
 import pickle
+from video_summarizer.redis import redis_client
 
 def get_bm25_index(video_id : str,db : Session):
-    cached = redis
+    cached_key = f"bm25:{video_id}"
+    cached = redis_client.get(cached_key)
 
+    if cached:
+        print("cache hit")
+        return pickle.loads(cached)
+
+    raw_chunks = db.query(Chunk).filter(Chunk.video_id == video_id).all()
+    tokenized_corpus = [chunk.content.lower().split(" ") for chunk in raw_chunks]
+    bm25 = BM25Okapi(tokenized_corpus)
+
+    
+    redis_client.set(cached_key,pickle.dumps((bm25,raw_chunks)) , ex = 3600)
+    return bm25 , raw_chunks
+    
 def query_video(video_id : str,question : str , db : Session) -> str:
     vector_store = PineconeVectorStore(
             index_name = PINECONE_INDEX_NAME,
             embedding=embedding_model,
             namespace = video_id
         )
-    raw_chunks = db.query(Chunk).filter(Chunk.video_id == video_id).all()
-    tokenized_corpus = [chunk.content.lower().split(" ") for chunk in raw_chunks]
-    bm25 = BM25Okapi(tokenized_corpus)
+    bm25 , raw_chunks = get_bm25_index(video_id,db)
     scores = bm25.get_scores(question.split(" "))
 
     scored_chunks = list(zip(scores,raw_chunks))
