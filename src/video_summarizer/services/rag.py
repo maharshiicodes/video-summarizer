@@ -15,7 +15,6 @@ def get_bm25_index(video_id : str,db : Session):
     cached = redis_client.get(cached_key)
 
     if cached:
-        print("cache hit")
         return pickle.loads(cached)
 
     raw_chunks = db.query(Chunk).filter(Chunk.video_id == video_id).all()

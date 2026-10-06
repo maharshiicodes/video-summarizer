@@ -5,7 +5,8 @@ import uuid
 from passlib.context import CryptContext
 from video_summarizer.db.database import get_db
 from video_summarizer.db.models import User
-from video_summarizer.auth.jwt import create_access_token
+from video_summarizer.auth.jwt import create_access_token,decode_access_token
+from fastapi import Request
 router = APIRouter()
 pwd_context = CryptContext(schemes = ["bcrypt"] , deprecated = "auto")
 
@@ -70,3 +71,23 @@ def login(request : LoginRequest , response : Response , db : Session = Depends(
 def logout(response:Response):
     response.delete_cookie("access_token")
     return {"message" : "logged out"}
+
+@router.get("me")
+def me(request : Request , db : Session = Depends(get_db)):
+    token = request.cookies.get("acces_token")
+
+    if not token:
+        raise HTTPException(status_code=401 , detail = "not authenticated")
+
+    user_id = decode_access_token(token)
+
+    if not user_id:
+        raise HTTPException(status_code = 401 , detail = "invalid or malformed token")
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code = 401 , detail = "user not found")
+
+    return {"id" : user.id , "name" : user.name , "email" : user.email}
+        
